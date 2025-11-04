@@ -29,8 +29,9 @@ app.use((req, res, next) => {
     next();
 });
 
-// PubMatic API endpoint
-const PUBMATIC_API_URL = 'https://cmpbid.pubmatic.com/convert/sponsored';
+// PubMatic API endpoints
+const PUBMATIC_SPONSORED_API = 'https://cmpbid.pubmatic.com/convert/sponsored';
+const PUBMATIC_ONSITE_API = 'https://cmpbid.pubmatic.com/convert/onsite/multi';
 
 // Health check endpoint
 app.get('/', (req, res) => {
@@ -39,7 +40,8 @@ app.get('/', (req, res) => {
         message: 'PubMatic Proxy Server is running',
         endpoints: {
             health: '/api/health',
-            sponsored: '/api/sponsored-products'
+            sponsored: '/api/sponsored-products (for Walmart demo)',
+            onsite: '/api/onsite-bid (for Uber demo)'
         }
     });
 });
@@ -48,14 +50,13 @@ app.get('/api/health', (req, res) => {
     res.json({ status: 'ok', message: 'Server is healthy' });
 });
 
-// Proxy endpoint for PubMatic sponsored products
+// Endpoint 1: Sponsored Products (for Walmart demo)
 app.post('/api/sponsored-products', async (req, res) => {
     try {
-        console.log('Received request for sponsored products');
+        console.log('Received request for SPONSORED products');
         console.log('Request body:', JSON.stringify(req.body, null, 2));
 
-        // Make request to PubMatic API
-        const response = await fetch(PUBMATIC_API_URL, {
+        const response = await fetch(PUBMATIC_SPONSORED_API, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -63,14 +64,12 @@ app.post('/api/sponsored-products', async (req, res) => {
             body: JSON.stringify(req.body),
         });
 
-        // Check if response is ok
         if (!response.ok) {
             throw new Error(`PubMatic API returned status: ${response.status}`);
         }
 
-        // Parse and return the response
         const data = await response.json();
-        console.log('PubMatic response received successfully');
+        console.log('PubMatic sponsored response received successfully');
 
         res.json(data);
     } catch (error) {
@@ -82,8 +81,41 @@ app.post('/api/sponsored-products', async (req, res) => {
     }
 });
 
+// Endpoint 2: Onsite Bid (for Uber demo)
+app.post('/api/onsite-bid', async (req, res) => {
+    try {
+        console.log('Received request for ONSITE bid');
+        console.log('Request body:', JSON.stringify(req.body, null, 2));
+
+        const response = await fetch(PUBMATIC_ONSITE_API, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(req.body),
+        });
+
+        if (!response.ok) {
+            throw new Error(`PubMatic API returned status: ${response.status}`);
+        }
+
+        const data = await response.json();
+        console.log('PubMatic onsite response received successfully');
+
+        res.json(data);
+    } catch (error) {
+        console.error('Error fetching onsite bid:', error);
+        res.status(500).json({
+            error: 'Failed to fetch onsite bid',
+            message: error.message,
+        });
+    }
+});
+
 // Start server
 app.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
-    console.log(`API endpoint: /api/sponsored-products`);
+    console.log(`Endpoints available:`);
+    console.log(`  - POST /api/sponsored-products`);
+    console.log(`  - POST /api/onsite-bid`);
 });
