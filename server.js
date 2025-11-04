@@ -8,9 +8,13 @@ const PORT = process.env.PORT || 3000;
 // CORS configuration - allow your GitHub Pages domain
 app.use(cors({
     origin: [
-        'https://yourusername.github.io',  // REPLACE with your actual GitHub Pages URL
+        'https://mais-kassam.github.io',  // REPLACE with your actual GitHub Pages URL
         'http://localhost:3000',           // For local testing
-        'http://127.0.0.1:3000'            // For local testing
+        'http://127.0.0.1:3000',           // For local testing
+        'http://localhost:3001',           // For local testing
+        'http://127.0.0.1:3001',           // For local testing
+        'http://localhost:3002',           // For local testing
+        'http://127.0.0.1:3002'            // For local testing
     ],
     methods: ['GET', 'POST'],
     credentials: true
@@ -30,8 +34,8 @@ const PUBMATIC_API_URL = 'https://cmpbid.pubmatic.com/convert/sponsored';
 
 // Health check endpoint
 app.get('/', (req, res) => {
-    res.json({ 
-        status: 'ok', 
+    res.json({
+        status: 'ok',
         message: 'PubMatic Proxy Server is running',
         endpoints: {
             health: '/api/health',
@@ -67,7 +71,7 @@ app.post('/api/sponsored-products', async (req, res) => {
         // Parse and return the response
         const data = await response.json();
         console.log('PubMatic response received successfully');
-        
+
         res.json(data);
     } catch (error) {
         console.error('Error fetching sponsored products:', error);
